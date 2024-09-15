@@ -19,7 +19,7 @@ public class Lexer{
     /**
      * Tokens
      */
-    public enum Token{
+    public enum TipoToken{
         ID,
         ENT,
         REAL,
@@ -46,10 +46,10 @@ public class Lexer{
      * Analiza si el caracter es válido
      */
     public List<Token> analizar(){
-        List<Token> tokens = new ArrayList<>()
+        List<Token> tokens = new ArrayList<>();
         while(indice < entrada.length()){
             char caracter = entrada.charAt(indice);
-            Estado edoSiguiente = edoSiguiente(caracter);
+            Edo edoSiguiente = edoSiguiente(caracter);
             if(edoSiguiente == null){
                 throw new RuntimeException("Caracter no valido " + indice);
             }
@@ -72,7 +72,7 @@ public class Lexer{
             case q0:
                 if(Character.isLetter(caracter)){
                     return Edo.q1;
-                } else if (Charater.isDigit(caracter) && caracter != '0'){
+                } else if (Character.isDigit(caracter) && caracter != '0'){
                     return Edo.q2;
                 } else if (caracter == '0'){
                     return Edo.q3;
@@ -190,8 +190,8 @@ public class Lexer{
     }
 
     public static void main(String[] args){
-        String entrada = "var1 ::= 12.3 + 44\n var2 ::= 1 + 2";
-        AnalizadorLexico lexer = new AnalizadorLexico(entrada);
+        String entrada = "4.4";
+        Lexer lexer = new Lexer(entrada);
         List<Token> tokens = lexer.analizar();
         for(Token token : tokens){
             System.out.println(token);
