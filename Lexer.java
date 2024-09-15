@@ -63,4 +63,67 @@ public class Lexer{
         }
         return tokens;
     }
+
+    /**
+     * Obtiene el siguiente estado
+     */
+    public Edo edoSiguiente(char caracter){
+        switch (edoActual){
+            case q0:
+                if(Character.isLetter(caracter)){
+                    return Edo.q1;
+                } else if (Charater.isDigit(caracter) && caracter != '0'){
+                    return Edo.q2;
+                } else if (caracter == '0'){
+                    return Edo.q3;
+                } else if (Character.isWhitespace(caracter)){
+                    return Edo.q4;
+                } else if (caracter == ':'){
+                    return Edo.q5;
+                } else if (caracter == '+'){
+                    return Edo.q6;
+                }
+                break;
+            case q1:
+                if (Character.isLetter(caracter)){
+                    return Edo.q1;
+                }
+                break;
+            case q2:
+                if (Character.isDigit(caracter)){
+                    return Edo.q2;
+                } else if (caracter == '.'){
+                    return Edo.q7;
+                }
+                break;
+            case q3:
+                if (caracter == '.'){
+                    return Edo.q7;
+                }
+                break;
+            case q4:
+                if (Character.isWhitespace(caracter)){
+                    return Edo.q4;
+                }
+                break;
+            case q5:
+                if (caracter == ':'){
+                    return Edo.q8;
+                }
+                break;
+            case q6:
+                break;
+            case q7:
+                if (Character.isDigit(caracter)){
+                    return Edo.q7;
+                }
+                break;
+            case q8:
+                if (caracter == '='){
+                    return Edo.q6;
+                }
+                break;
+        }
+        return null;
+    }
 }
