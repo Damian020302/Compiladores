@@ -51,15 +51,20 @@ public class Lexer{
             char caracter = entrada.charAt(indice);
             Edo edoSiguiente = edoSiguiente(caracter);
             if(edoSiguiente == null){
-                throw new RuntimeException("Caracter no valido " + indice);
+                throw new RuntimeException("Caracter en la posicion " + indice+ " no valido ");
+            }
+            if(edoSiguiente != edoActual){
+                if(esEdoAceptacion(edoActual) && edoSiguiente != Edo.q7){
+                tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
+                valorToken.setLength(0);
+                }
             }
             edoActual = edoSiguiente;
             valorToken.append(caracter);
             indice++;
-            if(esEdoAceptacion(edoActual)){
-                tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
-                valorToken.setLength(0);
-            }
+        }
+        if(esEdoAceptacion(edoActual)){
+            tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
         }
         return tokens;
     }
@@ -109,8 +114,9 @@ public class Lexer{
             case q5:
                 if (caracter == ':'){
                     return Edo.q8;
+                } else {
+                    return null;
                 }
-                break;
             case q6:
                 break;
             case q7:
@@ -121,8 +127,9 @@ public class Lexer{
             case q8:
                 if (caracter == '='){
                     return Edo.q6;
+                }else{
+                    return null;
                 }
-                break;
         }
         return null;
     }
@@ -160,6 +167,8 @@ public class Lexer{
                 return TipoToken.OP;
             case q7:
                 return TipoToken.REAL;
+            case q8:
+                return TipoToken.OP;
             default:
                 throw new RuntimeException("Token no valido");
         }
@@ -190,9 +199,51 @@ public class Lexer{
     }
 
     public static void main(String[] args){
-        String entrada = "4.4";
-        Lexer lexer = new Lexer(entrada);
-        List<Token> tokens = lexer.analizar();
+        String entrada_1 = "id";
+        String entrada_2 = "1";
+        String entrada_3 = "2.3";
+        String entrada_4 = "\n";
+        String entrada_5 = "+";
+        String entrada_6 = "::=";
+        String entrada_7 = " ";
+        String entrada_8 = "ida::=1\nidb::=ida+2.3";
+        Lexer lexer_1 = new Lexer(entrada_1);
+        Lexer lexer_2 = new Lexer(entrada_2);
+        Lexer lexer_3 = new Lexer(entrada_3);
+        Lexer lexer_4 = new Lexer(entrada_4);
+        Lexer lexer_5 = new Lexer(entrada_5);
+        Lexer lexer_6 = new Lexer(entrada_6);
+        Lexer lexer_7 = new Lexer(entrada_7);
+        Lexer lexer_8 = new Lexer(entrada_8);
+        List<Token> tokens = lexer_1.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_2.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_3.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_4.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_5.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_6.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_7.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
+        }
+        tokens = lexer_8.analizar();
         for(Token token : tokens){
             System.out.println(token);
         }
