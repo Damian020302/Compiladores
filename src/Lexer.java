@@ -126,4 +126,43 @@ public class Lexer{
         }
         return null;
     }
+
+    /**
+     * Verifica que sea un Estado de Aceptación
+     */
+    public boolean esEdoAceptacion(Edo edo){
+        switch (edo){
+            case q1:
+            case q2:
+            case q3:
+            case q4:
+            case q6:
+            case q7:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Obtiene el tipo de Token
+     */
+    public Token getTipoToken(Edo edo){
+        switch(edo){
+            case q1:
+                return Token.ID;
+            case q2:
+            case q3:
+                return Token.ENT;
+            case q4:
+                return Token.ESP;
+            case q6:
+                return Token.OP;
+            case q7:
+                return Token.REAL;
+            default:
+                throw new RuntimeException("Token no valido");
+            
+        }
+    }
 }
