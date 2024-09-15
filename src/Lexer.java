@@ -147,22 +147,54 @@ public class Lexer{
     /**
      * Obtiene el tipo de Token
      */
-    public Token getTipoToken(Edo edo){
+    public TipoToken getTipoToken(Edo edo){
         switch(edo){
             case q1:
-                return Token.ID;
+                return TipoToken.ID;
             case q2:
             case q3:
-                return Token.ENT;
+                return TipoToken.ENT;
             case q4:
-                return Token.ESP;
+                return TipoToken.ESP;
             case q6:
-                return Token.OP;
+                return TipoToken.OP;
             case q7:
-                return Token.REAL;
+                return TipoToken.REAL;
             default:
                 throw new RuntimeException("Token no valido");
-            
+        }
+    }
+
+    /**
+     * Clase Token
+     */
+    public static class Token{
+        public TipoToken tipo;
+        public String par;
+
+        /**
+         * Builder
+         */
+        public Token(TipoToken tipo, String par){
+            this.tipo = tipo;
+            this.par = par;
+        }
+
+        /**
+         * Metodo toString
+         */
+        @Override
+        public String toString(){
+            return "<" + tipo + ", " + par + ">"; 
+        }
+    }
+
+    public static void main(String[] args){
+        String entrada = "var1 ::= 12.3 + 44\n var2 ::= 1 + 2";
+        AnalizadorLexico lexer = new AnalizadorLexico(entrada);
+        List<Token> tokens = lexer.analizar();
+        for(Token token : tokens){
+            System.out.println(token);
         }
     }
 }
