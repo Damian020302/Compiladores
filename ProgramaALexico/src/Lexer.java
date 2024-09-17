@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Lexer{
@@ -253,53 +255,19 @@ public class Lexer{
         /**
          * Pruebas
          */
-        String entrada_1 = "id";
-        String entrada_2 = "1";
-        String entrada_3 = "2.3";
-        String entrada_4 = "\n";
-        String entrada_5 = "+";
-        String entrada_6 = "::=";
-        String entrada_7 = " ";
-        String entrada_8 = "ida ::= 1 \n idb ::= ida + 2.3";
-        Lexer lexer_1 = new Lexer(entrada_1);
-        Lexer lexer_2 = new Lexer(entrada_2);
-        Lexer lexer_3 = new Lexer(entrada_3);
-        Lexer lexer_4 = new Lexer(entrada_4);
-        Lexer lexer_5 = new Lexer(entrada_5);
-        Lexer lexer_6 = new Lexer(entrada_6);
-        Lexer lexer_7 = new Lexer(entrada_7);
-        Lexer lexer_8 = new Lexer(entrada_8);
-        List<Token> tokens = lexer_1.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_2.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_3.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_4.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_5.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_6.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_7.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
-        }
-        tokens = lexer_8.analizar();
-        for(Token token : tokens){
-            System.out.println(token);
+        try {
+            Scanner scanner = new Scanner(new File("../src/pruebas.txt"));
+            while (scanner.hasNextLine()){
+                String entrada = scanner.nextLine();
+                Lexer lexer = new Lexer(entrada);
+                List<Token> tokens = lexer.analizar();
+                for(Token token : tokens){
+                    System.out.println(token);
+                }
+            }
+            scanner.close();
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
         }
     }
 }
