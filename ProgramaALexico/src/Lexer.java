@@ -1,12 +1,18 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 
-public class Lexer{
+/**
+ * Clase Lexer
+ * <p>
+ * Se aplicará un Análisis Léxico a un archivo de texto (.txt)
+ *
+ * @author Vazquez Torrijos Damian
+ */
+public class Lexer {
     /**
      * Estados del AFD
      */
-    public enum Edo{
+    public enum Edo {
         q0,
         q1,
         q2,
@@ -19,9 +25,9 @@ public class Lexer{
     }
 
     /**
-     * Tokens
+     * Token
      */
-    public enum TipoToken{
+    public enum TipoToken {
         ID,
         ENT,
         REAL,
@@ -37,7 +43,7 @@ public class Lexer{
     /**
      * Builder
      */
-    public Lexer(String entrada){
+    public Lexer(String entrada) {
         this.entrada = entrada;
         this.indice = 0;
         this.edoActual = Edo.q0;
@@ -45,11 +51,14 @@ public class Lexer{
     }
 
     /**
-     * Analiza si el caracter es válido
+     * Método que realiza el análisis léxico de una
+     * entrada
+     *
+     * @return La lista de tokens de una entrada
      */
-    public List<Token> analizar(){
+    public List<Token> yylex() {
         List<Token> tokens = new ArrayList<>();
-        while(indice < entrada.length()){
+        while (indice < entrada.length()) {
             char caracter = entrada.charAt(indice);
             Edo edoSiguiente = edoSiguiente(caracter);
             /**
@@ -57,7 +66,7 @@ public class Lexer{
              */
             if (edoActual == Edo.q5 && caracter == ':') {
                 edoSiguiente = Edo.q8;
-                
+
                 valorToken.append(caracter);
                 indice++;
                 edoActual = edoSiguiente;
@@ -69,25 +78,25 @@ public class Lexer{
                 indice++;
                 continue;
             }
-            if (edoSiguiente == null){
-                if (valorToken.length() > 0) {
+            if (edoSiguiente == null) {
+                if (!valorToken.isEmpty()) {
                     tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
                     valorToken.setLength(0);
                     edoActual = Edo.q0;
-                } else{
+                } else {
                     indice++;
                 }
-            } else{
-                if(edoSiguiente != edoActual){
-                    if(esEdoAceptacion(edoActual) && edoSiguiente != Edo.q7){
+            } else {
+                if (edoSiguiente != edoActual) {
+                    if (esEdoAceptacion(edoActual) && edoSiguiente != Edo.q7) {
                         tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
                         valorToken.setLength(0);
                         edoActual = Edo.q0;
-                        
+
                     }
                 }
                 edoActual = edoSiguiente;
-                if(esEdoAceptacion(edoActual)){
+                if (esEdoAceptacion(edoActual)) {
                     valorToken.append(caracter);
                 } else {
                     valorToken.setLength(0);
@@ -95,77 +104,76 @@ public class Lexer{
                 }
                 indice++;
                 if (edoActual == Edo.q8) {
-                    /*indice++;
-                    edoActual = Edo.q6;*/
                     valorToken.append(caracter);
                     tokens.add(new Token(TipoToken.OP, valorToken.toString()));
                     valorToken.setLength(0);
                     edoActual = Edo.q0;
-                    //indice++;
-                    
                 }
                 // Verifica si es un espacio en blanco o un salto de linea para poder concatenar
-                if (Character.isWhitespace(caracter) || caracter == '\n') {
+                if (Character.isWhitespace(caracter) || caracter == '\n' || caracter == '\t' || caracter == '\r') {
                     if (esEdoAceptacion(edoActual)) {
                         tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
                         valorToken.setLength(0);
                         edoActual = Edo.q0;
                     }
-                    
                 }
             }
         }
         if (esEdoAceptacion(edoActual)) {
             tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
-            
+
         }
         return tokens;
     }
 
     /**
-     * Obtiene el siguiente estado
+     * Método que obtiene el estado siguiente en un
+     * análisis léxico
+     *
+     * @param caracter caracter que define el estado siguiente
+     * @return Estado siguiente
      */
-    public Edo edoSiguiente(char caracter){
-        switch (edoActual){
+    public Edo edoSiguiente(char caracter) {
+        switch (edoActual) {
             case q0:
-            if(Character.isLetter(caracter)){
-                return Edo.q1;
-            } else if (Character.isDigit(caracter) && caracter != '0'){
-                return Edo.q2;
-            } else if (caracter == '0'){
-                return Edo.q3;
-            } else if (Character.isWhitespace(caracter)){
-                return Edo.q4;
-            } else if (caracter == ':'){
-                return Edo.q5;
-            } else if (caracter == '+'){
-                return Edo.q6;
-            }
-            break;
+                if (Character.isLetter(caracter)) {
+                    return Edo.q1;
+                } else if (Character.isDigit(caracter) && caracter != '0') {
+                    return Edo.q2;
+                } else if (caracter == '0') {
+                    return Edo.q3;
+                } else if (Character.isWhitespace(caracter)) {
+                    return Edo.q4;
+                } else if (caracter == ':') {
+                    return Edo.q5;
+                } else if (caracter == '+') {
+                    return Edo.q6;
+                }
+                break;
             case q1:
-                if (Character.isLetter(caracter)){
+                if (Character.isLetter(caracter)) {
                     return Edo.q1;
                 }
                 break;
             case q2:
-                if (Character.isDigit(caracter)){
+                if (Character.isDigit(caracter)) {
                     return Edo.q2;
-                } else if (caracter == '.'){
+                } else if (caracter == '.') {
                     return Edo.q7;
                 }
                 break;
             case q3:
-                if (caracter == '.'){
+                if (caracter == '.') {
                     return Edo.q7;
                 }
                 break;
             case q4:
-                if (Character.isWhitespace(caracter)){
+                if (Character.isWhitespace(caracter)) {
                     return Edo.q4;
                 }
                 break;
             case q5:
-                if (caracter == ':'){
+                if (caracter == ':') {
                     return Edo.q8;
                 } else {
                     return null;
@@ -173,14 +181,14 @@ public class Lexer{
             case q6:
                 break;
             case q7:
-                if (Character.isDigit(caracter)){
+                if (Character.isDigit(caracter)) {
                     return Edo.q7;
                 }
                 break;
             case q8:
-                if (caracter == '='){
+                if (caracter == '=') {
                     return Edo.q6;
-                }else{
+                } else {
                     return null;
                 }
         }
@@ -188,10 +196,14 @@ public class Lexer{
     }
 
     /**
-     * Verifica que sea un Estado de Aceptación
+     * Método que verifica que el estado en el que se está sea
+     * un Estado de Aceptación
+     *
+     * @param edo
+     * @return
      */
-    public boolean esEdoAceptacion(Edo edo){
-        switch (edo){
+    public boolean esEdoAceptacion(Edo edo) {
+        switch (edo) {
             case q1:
             case q2:
             case q3:
@@ -205,10 +217,14 @@ public class Lexer{
     }
 
     /**
-     * Obtiene el tipo de Token
+     * Método que obtiene el tipo de token del
+     * estado actual
+     *
+     * @param edo Estado actual
+     * @return Tipo de Token
      */
-    public TipoToken getTipoToken(Edo edo){
-        switch(edo){
+    public TipoToken getTipoToken(Edo edo) {
+        switch (edo) {
             case q1:
                 return TipoToken.ID;
             case q2:
@@ -230,43 +246,45 @@ public class Lexer{
     /**
      * Clase Token
      */
-    public static class Token{
+    public static class Token {
         public TipoToken tipo;
         public String par;
 
         /**
-         * Builder
+         * Método Builder
          */
-        public Token(TipoToken tipo, String par){
+        public Token(TipoToken tipo, String par) {
             this.tipo = tipo;
             this.par = par;
         }
 
         /**
-         * Metodo toString
+         * Método toString
+         *
+         * @return String del Componente Léxico
          */
         @Override
-        public String toString(){
-            return "<" + tipo + ", " + par + ">"; 
+        public String toString() {
+            return "<" + tipo + ", " + par + ">";
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         /**
          * Pruebas
          */
         try {
             Scanner scanner = new Scanner(new File("../src/pruebas.txt"));
-            while (scanner.hasNextLine()){
+            while (scanner.hasNextLine()) {
                 String entrada = scanner.nextLine();
                 Lexer lexer = new Lexer(entrada);
-                List<Token> tokens = lexer.analizar();
-                for(Token token : tokens){
+                List<Token> tokens = lexer.yylex();
+                for (Token token : tokens) {
                     System.out.println(token);
                 }
             }
             scanner.close();
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
