@@ -50,21 +50,72 @@ public class Lexer{
         while(indice < entrada.length()){
             char caracter = entrada.charAt(indice);
             Edo edoSiguiente = edoSiguiente(caracter);
-            if(edoSiguiente == null){
-                throw new RuntimeException("Caracter en la posicion " + indice+ " no valido ");
-            }
-            if(edoSiguiente != edoActual){
-                if(esEdoAceptacion(edoActual) && edoSiguiente != Edo.q7){
-                tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
+            /**
+             * Concatenación de la asignación
+             */
+            if (edoActual == Edo.q5 && caracter == ':') {
+                edoSiguiente = Edo.q8;
+                
+                valorToken.append(caracter);
+                indice++;
+                edoActual = edoSiguiente;
+                caracter = entrada.charAt(indice);
+                valorToken.append(caracter);
+                tokens.add(new Token(TipoToken.OP, valorToken.toString()));
                 valorToken.setLength(0);
+                edoActual = Edo.q0;
+                indice++;
+                continue;
+            }
+            if (edoSiguiente == null){
+                if (valorToken.length() > 0) {
+                    tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
+                    valorToken.setLength(0);
+                    edoActual = Edo.q0;
+                } else{
+                    indice++;
+                }
+            } else{
+                if(edoSiguiente != edoActual){
+                    if(esEdoAceptacion(edoActual) && edoSiguiente != Edo.q7){
+                        tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
+                        valorToken.setLength(0);
+                        edoActual = Edo.q0;
+                        
+                    }
+                }
+                edoActual = edoSiguiente;
+                if(esEdoAceptacion(edoActual)){
+                    valorToken.append(caracter);
+                } else {
+                    valorToken.setLength(0);
+                    valorToken.append(caracter);
+                }
+                indice++;
+                if (edoActual == Edo.q8) {
+                    /*indice++;
+                    edoActual = Edo.q6;*/
+                    valorToken.append(caracter);
+                    tokens.add(new Token(TipoToken.OP, valorToken.toString()));
+                    valorToken.setLength(0);
+                    edoActual = Edo.q0;
+                    //indice++;
+                    
+                }
+                // Verifica si es un espacio en blanco o un salto de linea para poder concatenar
+                if (Character.isWhitespace(caracter) || caracter == '\n') {
+                    if (esEdoAceptacion(edoActual)) {
+                        tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
+                        valorToken.setLength(0);
+                        edoActual = Edo.q0;
+                    }
+                    
                 }
             }
-            edoActual = edoSiguiente;
-            valorToken.append(caracter);
-            indice++;
         }
-        if(esEdoAceptacion(edoActual)){
+        if (esEdoAceptacion(edoActual)) {
             tokens.add(new Token(getTipoToken(edoActual), valorToken.toString()));
+            
         }
         return tokens;
     }
@@ -75,20 +126,20 @@ public class Lexer{
     public Edo edoSiguiente(char caracter){
         switch (edoActual){
             case q0:
-                if(Character.isLetter(caracter)){
-                    return Edo.q1;
-                } else if (Character.isDigit(caracter) && caracter != '0'){
-                    return Edo.q2;
-                } else if (caracter == '0'){
-                    return Edo.q3;
-                } else if (Character.isWhitespace(caracter)){
-                    return Edo.q4;
-                } else if (caracter == ':'){
-                    return Edo.q5;
-                } else if (caracter == '+'){
-                    return Edo.q6;
-                }
-                break;
+            if(Character.isLetter(caracter)){
+                return Edo.q1;
+            } else if (Character.isDigit(caracter) && caracter != '0'){
+                return Edo.q2;
+            } else if (caracter == '0'){
+                return Edo.q3;
+            } else if (Character.isWhitespace(caracter)){
+                return Edo.q4;
+            } else if (caracter == ':'){
+                return Edo.q5;
+            } else if (caracter == '+'){
+                return Edo.q6;
+            }
+            break;
             case q1:
                 if (Character.isLetter(caracter)){
                     return Edo.q1;
@@ -199,6 +250,9 @@ public class Lexer{
     }
 
     public static void main(String[] args){
+        /**
+         * Pruebas
+         */
         String entrada_1 = "id";
         String entrada_2 = "1";
         String entrada_3 = "2.3";
@@ -206,7 +260,7 @@ public class Lexer{
         String entrada_5 = "+";
         String entrada_6 = "::=";
         String entrada_7 = " ";
-        String entrada_8 = "ida::=1\nidb::=ida+2.3";
+        String entrada_8 = "ida ::= 1 \n idb ::= ida + 2.3";
         Lexer lexer_1 = new Lexer(entrada_1);
         Lexer lexer_2 = new Lexer(entrada_2);
         Lexer lexer_3 = new Lexer(entrada_3);
